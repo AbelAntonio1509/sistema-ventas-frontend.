@@ -80,18 +80,19 @@
         <!-- Tabla de Ventas -->
         <table class="table mt-3">
             <thead>
-                <tr>
-                    <th>Vendedor</th>
-                    <th>Tipo de Vaso</th>
-                    <th>Comprador</th>
-                    <th>Método de Pago</th>
-                    <th>Fecha</th>
-                </tr>
+              <tr>
+                <th>Vendedor</th>
+                <th>Tipo de Vaso</th>
+                <th>Comprador</th>
+                <th>Método de Pago</th>
+                <th>Fecha</th>
+                <th>Acciones</th> <!-- Nueva columna para los botones -->
+              </tr>
             </thead>
             <tbody id="tablaVentas">
-                <!-- Aquí se insertarán las ventas -->
+              <!-- Aquí se insertarán las ventas -->
             </tbody>
-        </table>
+          </table>
     </div>
 
     <script>
@@ -182,29 +183,47 @@
 
         // Mostrar ventas en la tabla
         function mostrarVentas(ventas) {
-            const filtroVendedor = document.getElementById('filtroVendedor').value;
-            const filtroPago = document.getElementById('filtroPago').value;
-            const tablaVentas = document.getElementById('tablaVentas');
-            tablaVentas.innerHTML = ''; // Limpiar la tabla antes de insertar nuevas ventas
+    const filtroVendedor = document.getElementById('filtroVendedor').value;
+    const filtroPago = document.getElementById('filtroPago').value;
+    const tablaVentas = document.getElementById('tablaVentas');
+    tablaVentas.innerHTML = ''; // Limpiar la tabla antes de insertar nuevas ventas
 
-            ventas.forEach(venta => {
-                // Aplicar los filtros de vendedor y método de pago
-                if ((filtroVendedor === '' || venta.vendedora === filtroVendedor) &&
-                    (filtroPago === '' || venta.metodoPago === filtroPago)) {
+    ventas.forEach(venta => {
+        // Aplicar los filtros de vendedor y método de pago
+        if ((filtroVendedor === '' || venta.vendedora === filtroVendedor) &&
+            (filtroPago === '' || venta.metodoPago === filtroPago)) {
 
-                    const fila = `
-                        <tr>
-                            <td>${venta.vendedora}</td>
-                            <td>${venta.tipoVaso}</td>
-                            <td>${venta.comprador}</td>
-                            <td>${venta.metodoPago}</td>
-                            <td>${new Date(venta.fecha).toLocaleString()}</td>
-                        </tr>
-                    `;
-                    tablaVentas.innerHTML += fila;
-                }
-            });
+            // Aquí se está generando el botón de eliminar
+            const fila = `
+                <tr>
+                    <td>${venta.vendedora}</td>
+                    <td>${venta.tipoVaso}</td>
+                    <td>${venta.comprador}</td>
+                    <td>${venta.metodoPago}</td>
+                    <td>${new Date(venta.fecha).toLocaleString()}</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="eliminarVenta('${venta._id}')">Eliminar</button>
+                    </td>
+                </tr>
+            `;
+            tablaVentas.innerHTML += fila;
         }
+    });
+}
+
+function eliminarVenta(id) {
+    if (confirm('¿Estás seguro de que deseas eliminar esta venta?')) {
+        axios.delete(`${apiURL}/${id}`)
+            .then(response => {
+                alert('Venta eliminada exitosamente');
+                cargarVentas(); // Recarga las ventas después de eliminar
+            })
+            .catch(error => {
+                console.error('Error al eliminar la venta:', error);
+                alert('Ocurrió un error al intentar eliminar la venta');
+            });
+    }
+}
 
         // Actualizar la tabla cuando cambien los filtros
         document.getElementById('filtroVendedor').addEventListener('change', cargarVentas);
